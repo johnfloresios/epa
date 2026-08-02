@@ -106,7 +106,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
-      {isDataLoading ? (
+      {isDataLoading || (session && !profile) ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={styles.loadingText}>Syncing Profile...</Text>
@@ -117,6 +117,9 @@ export default function App() {
             profile={profile!} 
             attempts={attempts} 
             onUpgradePress={() => setIsUpgradeModalVisible(true)} 
+            onLogout={async () => {
+              await supabase.auth.signOut();
+            }}
           />
           
           <UpgradeModal 

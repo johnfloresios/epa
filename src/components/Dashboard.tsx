@@ -11,14 +11,15 @@ import { Profile, QuizAttempt } from '../types';
 import { COLORS } from '../constants/theme';
 
 interface DashboardProps {
-  profile: Profile;
+  profile: Profile | null;
   attempts: QuizAttempt[];
   onUpgradePress: () => void;
+  onLogout: () => void;
 }
 
 const { width } = Dimensions.get('window');
 
-export const Dashboard = ({ profile, attempts, onUpgradePress }: DashboardProps) => {
+export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout }: DashboardProps) => {
   
   const kpis = useMemo(() => {
     const totalFinished = attempts.length;
@@ -34,16 +35,22 @@ export const Dashboard = ({ profile, attempts, onUpgradePress }: DashboardProps)
       <View style={styles.profileBar}>
         <View>
           <Text style={styles.greeting}>Hello,</Text>
-          <Text style={styles.userName}>{profile.full_name}</Text>
+          <Text style={styles.userName}>{profile?.full_name || 'Technician'}</Text>
         </View>
-        <TouchableOpacity 
-          onPress={onUpgradePress}
-          style={[styles.badge, profile.is_premium ? styles.badgePremium : styles.badgePro]}
-        >
-          <Text style={[styles.badgeText, profile.is_premium && { color: COLORS.white }]}>
-            {profile.is_premium ? '👑 Premium Active' : '⚡ Upgrade to Pro'}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.actions}>
+          <TouchableOpacity 
+            onPress={onUpgradePress}
+            style={[styles.badge, profile?.is_premium ? styles.badgePremium : styles.badgePro]}
+          >
+            <Text style={[styles.badgeText, profile?.is_premium && { color: COLORS.white }]}>
+              {profile?.is_premium ? '👑 Premium Active' : '⚡ Upgrade to Pro'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={onLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.kpiRow}>
@@ -125,10 +132,26 @@ const styles = StyleSheet.create({
   },
   greeting: { fontSize: 14, color: COLORS.gray },
   userName: { fontSize: 20, fontWeight: '700', color: COLORS.dark },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   badge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20 },
   badgePro: { backgroundColor: '#EEF2FF' },
   badgePremium: { backgroundColor: COLORS.primary },
   badgeText: { fontSize: 12, fontWeight: '700', color: COLORS.primary },
+  logoutButton: {
+    marginLeft: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#FEE2E2',
+  },
+  logoutText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#EF4444',
+  },
   kpiRow: { flexDirection: 'row', padding: 20, gap: 15 },
   kpiCard: {
     flex: 1,
