@@ -13,9 +13,11 @@ import { supabase } from './supabase';
 import { AuthGateway } from './src/components/AuthGateway';
 import { Dashboard } from './src/components/Dashboard';
 import { UpgradeModal } from './src/components/UpgradeModal';
+import { Quiz } from './src/components/Quiz';
 
-// Type Imports
-import { Profile, QuizAttempt } from './src/types';
+// Constants & Types
+import { EPA608_QUESTIONS } from './src/constants/questions';
+import { Profile, QuizAttempt, Question } from './src/types';
 
 // Theme Imports
 import { COLORS } from './src/constants/theme';
@@ -29,6 +31,9 @@ export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(false);
+
+  // --- QUIZ STATE ---
+  const [isQuizVisible, setIsQuizVisible] = useState(false);
 
   // --- UI STATE ---
   const [isUpgradeModalVisible, setIsUpgradeModalVisible] = useState(false);
@@ -82,6 +87,36 @@ export default function App() {
     }
   };
 
+  const handleQuizComplete = async (score: number, total: number) => {
+    if (!session?.user?.id) return;
+
+    try {
+      const { error } = await supabase.from('quiz_attempts').insert({
+        user_id: session.user.id,
+        score,
+        total_questions: total,
+        category: 'EPA 608',
+        created_at: new Date().toISOString(),
+      });
+
+      if (error) throw error;
+      
+      // Refresh attempts
+      const { data: newAttempts } = await supabase
+        .from('quiz_attempts')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
+      
+      if (newAttempts) setAttempts(newAttempts);
+      
+    } catch (error) {
+      console.error('Error saving quiz result:', error);
+    } finally {
+      setIsQuizVisible(false);
+    }
+  };
+
   /**
    * RENDER LOGIC
    */
@@ -101,7 +136,18 @@ export default function App() {
     return <AuthGateway onAuthSuccess={() => {}} />; // onAuthSuccess is handled by onAuthStateChange
   }
 
-  // 3. Premium Dashboard (Logged In)
+  // 3. Quiz Mode
+  if (isQuizVisible) {
+    return (
+      <Quiz 
+        questions={EPA608_QUESTIONS} 
+        onComplete={handleQuizComplete}
+        onCancel={() => setIsQuizVisible(false)}
+      />
+    );
+  }
+
+  // 4. Premium Dashboard (Logged In)
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -120,6 +166,7 @@ export default function App() {
             onLogout={async () => {
               await supabase.auth.signOut();
             }}
+            onStartQuiz={() => setIsQuizVisible(true)}
           />
           
           <UpgradeModal 

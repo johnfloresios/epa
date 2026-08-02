@@ -15,11 +15,12 @@ interface DashboardProps {
   attempts: QuizAttempt[];
   onUpgradePress: () => void;
   onLogout: () => void;
+  onStartQuiz: () => void;
 }
 
 const { width } = Dimensions.get('window');
 
-export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout }: DashboardProps) => {
+export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout, onStartQuiz }: DashboardProps) => {
   
   const kpis = useMemo(() => {
     const totalFinished = attempts.length;
@@ -64,6 +65,12 @@ export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout }: Dashb
             {Math.round(kpis.avgAccuracy * 100)}%
           </Text>
         </View>
+      </View>
+
+      <View style={styles.quizQuickStart}>
+        <TouchableOpacity style={styles.quizButton} onPress={onStartQuiz}>
+          <Text style={styles.quizButtonText}>🚀 Start New Quiz</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.chartSection}>
@@ -166,6 +173,19 @@ const styles = StyleSheet.create({
   },
   kpiLabel: { fontSize: 13, color: COLORS.gray, marginBottom: 5 },
   kpiValue: { fontSize: 24, fontWeight: '800', color: COLORS.dark },
+  quizQuickStart: { paddingHorizontal: 20, marginBottom: 10 },
+  quizButton: {
+    backgroundColor: COLORS.primary,
+    padding: 18,
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  quizButtonText: { color: COLORS.white, fontSize: 18, fontWeight: '700' },
   chartSection: { paddingHorizontal: 20, marginBottom: 25 },
   sectionTitle: { fontSize: 18, fontWeight: '700', color: COLORS.dark, marginBottom: 15 },
   chartContainer: {

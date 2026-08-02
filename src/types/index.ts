@@ -11,3 +11,10 @@ export interface QuizAttempt {
   total_questions: number;
   created_at: string;
 }
+
+export interface Question {
+  question: string;
+  options: string[];
+  correct_answer: string;
+  explanation: string;
+}
