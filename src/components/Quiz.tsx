@@ -8,7 +8,7 @@ import {
   Dimensions,
   SafeAreaView,
 } from 'react-native';
-import { COLORS } from '../constants/theme';
+import { useTheme, ThemeColors } from '../constants/theme';
 import { Question } from '../types';
 
 interface QuizProps {
@@ -18,6 +18,9 @@ interface QuizProps {
 }
 
 export const Quiz = ({ questions, onComplete, onCancel }: QuizProps) => {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -89,7 +92,7 @@ export const Quiz = ({ questions, onComplete, onCancel }: QuizProps) => {
 
       {showExplanation && (
         <View style={styles.explanationContainer}>
-          <Text style={[styles.explanationTitle, { color: isCorrect ? COLORS.success : COLORS.error }]}>
+          <Text style={[styles.explanationTitle, { color: isCorrect ? theme.success : theme.error }]}>
             {isCorrect ? '✅ Correct!' : '❌ Incorrect'}
           </Text>
           <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
@@ -104,21 +107,21 @@ export const Quiz = ({ questions, onComplete, onCancel }: QuizProps) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.light, padding: 20 },
+const getStyles = (theme: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.background, padding: 20 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30 },
-  cancelText: { fontSize: 16, color: COLORS.error, fontWeight: '600' },
-  progress: { fontSize: 16, color: COLORS.gray, fontWeight: '600' },
-  questionCard: { backgroundColor: COLORS.white, padding: 25, borderRadius: 20, marginBottom: 25, elevation: 2 },
-  questionText: { fontSize: 20, lineHeight: 28, color: COLORS.dark, fontWeight: '600' },
+  cancelText: { fontSize: 16, color: theme.error, fontWeight: '600' },
+  progress: { fontSize: 16, color: theme.textSecondary, fontWeight: '600' },
+  questionCard: { backgroundColor: theme.surface, padding: 25, borderRadius: 20, marginBottom: 25, elevation: 2 },
+  questionText: { fontSize: 20, lineHeight: 28, color: theme.text, fontWeight: '600' },
   optionsContainer: { gap: 12 },
-  optionButton: { backgroundColor: COLORS.white, padding: 18, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border },
-  optionText: { fontSize: 16, color: COLORS.dark },
-  optionCorrect: { backgroundColor: '#D1FAE5', borderColor: COLORS.success },
-  optionIncorrect: { backgroundColor: '#FEE2E2', borderColor: COLORS.error },
-  explanationContainer: { marginTop: 20, backgroundColor: COLORS.white, padding: 20, borderRadius: 15, elevation: 2 },
+  optionButton: { backgroundColor: theme.surface, padding: 18, borderRadius: 12, borderWidth: 1, borderColor: theme.border },
+  optionText: { fontSize: 16, color: theme.text },
+  optionCorrect: { backgroundColor: '#D1FAE5', borderColor: theme.success },
+  optionIncorrect: { backgroundColor: '#FEE2E2', borderColor: theme.error },
+  explanationContainer: { marginTop: 20, backgroundColor: theme.surface, padding: 20, borderRadius: 15, elevation: 2 },
   explanationTitle: { fontSize: 18, fontWeight: '800', marginBottom: 10 },
-  explanationText: { fontSize: 15, color: COLORS.gray, lineHeight: 22, marginBottom: 20 },
-  nextButton: { backgroundColor: COLORS.primary, padding: 16, borderRadius: 10, alignItems: 'center' },
-  nextButtonText: { color: COLORS.white, fontSize: 16, fontWeight: '700' },
+  explanationText: { fontSize: 15, color: theme.textSecondary, lineHeight: 22, marginBottom: 20 },
+  nextButton: { backgroundColor: theme.primary, padding: 16, borderRadius: 10, alignItems: 'center' },
+  nextButtonText: { color: theme.white, fontSize: 16, fontWeight: '700' },
 });

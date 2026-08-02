@@ -8,7 +8,8 @@ import {
   Dimensions,
 } from 'react-native';
 import { Profile, QuizAttempt } from '../types';
-import { COLORS } from '../constants/theme';
+import { useTheme, ThemeColors } from '../constants/theme';
+import { Sun, Moon } from 'lucide-react-native';
 
 interface DashboardProps {
   profile: Profile | null;
@@ -16,11 +17,14 @@ interface DashboardProps {
   onUpgradePress: () => void;
   onLogout: () => void;
   onStartQuiz: () => void;
+  onToggleTheme: () => void;
 }
 
 const { width } = Dimensions.get('window');
 
-export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout, onStartQuiz }: DashboardProps) => {
+export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout, onStartQuiz, onToggleTheme }: DashboardProps) => {
+  const { theme, mode } = useTheme();
+  const styles = getStyles(theme, mode);
   
   const kpis = useMemo(() => {
     const totalFinished = attempts.length;
@@ -40,10 +44,21 @@ export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout, onStart
         </View>
         <View style={styles.actions}>
           <TouchableOpacity 
+            onPress={onToggleTheme}
+            style={styles.themeButton}
+          >
+            {mode === 'light' ? (
+              <Moon size={20} color={theme.textSecondary} />
+            ) : (
+              <Sun size={20} color={theme.textSecondary} />
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
             onPress={onUpgradePress}
             style={[styles.badge, profile?.is_premium ? styles.badgePremium : styles.badgePro]}
           >
-            <Text style={[styles.badgeText, profile?.is_premium && { color: COLORS.white }]}>
+            <Text style={[styles.badgeText, profile?.is_premium && { color: theme.white }]}>
               {profile?.is_premium ? '👑 Premium Active' : '⚡ Upgrade to Pro'}
             </Text>
           </TouchableOpacity>
@@ -61,7 +76,7 @@ export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout, onStart
         </View>
         <View style={styles.kpiCard}>
           <Text style={styles.kpiLabel}>Avg. Accuracy</Text>
-          <Text style={[styles.kpiValue, { color: COLORS.success }]}>
+          <Text style={[styles.kpiValue, { color: theme.success }]}>
             {Math.round(kpis.avgAccuracy * 100)}%
           </Text>
         </View>
@@ -87,7 +102,7 @@ export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout, onStart
           })}
           {attempts.length === 0 && [1,2,3,4,5,6,7].map((_, i) => (
             <View key={i} style={styles.chartColumn}>
-              <View style={[styles.chartBar, { height: 5, backgroundColor: COLORS.border }]} />
+              <View style={[styles.chartBar, { height: 5, backgroundColor: theme.border }]} />
               <Text style={styles.chartLabel}>{i+1}</Text>
             </View>
           ))}
@@ -127,7 +142,7 @@ export const Dashboard = ({ profile, attempts, onUpgradePress, onLogout, onStart
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme: ThemeColors, mode: 'light' | 'dark') => StyleSheet.create({
   scrollContent: { paddingBottom: 40 },
   profileBar: {
     flexDirection: 'row',
@@ -135,24 +150,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: COLORS.white,
+    backgroundColor: theme.surface,
   },
-  greeting: { fontSize: 14, color: COLORS.gray },
-  userName: { fontSize: 20, fontWeight: '700', color: COLORS.dark },
+  greeting: { fontSize: 14, color: theme.textSecondary },
+  userName: { fontSize: 20, fontWeight: '700', color: theme.text },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  themeButton: {
+    marginRight: 10,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: theme.light,
+  },
   badge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20 },
-  badgePro: { backgroundColor: '#EEF2FF' },
-  badgePremium: { backgroundColor: COLORS.primary },
-  badgeText: { fontSize: 12, fontWeight: '700', color: COLORS.primary },
+  badgePro: { backgroundColor: mode === 'light' ? '#EEF2FF' : 'rgba(99, 102, 241, 0.15)' },
+  badgePremium: { backgroundColor: theme.primary },
+  badgeText: { fontSize: 12, fontWeight: '700', color: theme.primary },
   logoutButton: {
     marginLeft: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: mode === 'light' ? '#FEE2E2' : 'rgba(239, 68, 68, 0.15)',
   },
   logoutText: {
     fontSize: 12,
@@ -162,7 +183,7 @@ const styles = StyleSheet.create({
   kpiRow: { flexDirection: 'row', padding: 20, gap: 15 },
   kpiCard: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: theme.surface,
     padding: 20,
     borderRadius: 20,
     shadowColor: '#000',
@@ -171,11 +192,11 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 2,
   },
-  kpiLabel: { fontSize: 13, color: COLORS.gray, marginBottom: 5 },
-  kpiValue: { fontSize: 24, fontWeight: '800', color: COLORS.dark },
+  kpiLabel: { fontSize: 13, color: theme.textSecondary, marginBottom: 5 },
+  kpiValue: { fontSize: 24, fontWeight: '800', color: theme.text },
   quizQuickStart: { paddingHorizontal: 20, marginBottom: 10 },
   quizButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: theme.primary,
     padding: 18,
     borderRadius: 15,
     alignItems: 'center',
@@ -185,40 +206,40 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  quizButtonText: { color: COLORS.white, fontSize: 18, fontWeight: '700' },
+  quizButtonText: { color: theme.white, fontSize: 18, fontWeight: '700' },
   chartSection: { paddingHorizontal: 20, marginBottom: 25 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: COLORS.dark, marginBottom: 15 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: theme.text, marginBottom: 15 },
   chartContainer: {
-    height: 120,
+    height: 150,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.white,
+    backgroundColor: theme.surface,
     padding: 20,
     borderRadius: 20,
   },
   chartColumn: { alignItems: 'center', flex: 1 },
-  chartBar: { width: '60%', backgroundColor: COLORS.primary, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
-  chartLabel: { fontSize: 10, color: COLORS.gray, marginTop: 8 },
+  chartBar: { width: '60%', backgroundColor: theme.primary, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
+  chartLabel: { fontSize: 10, color: theme.textSecondary, marginTop: 8 },
   ledgerSection: { paddingHorizontal: 20 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-  viewAllText: { color: COLORS.primary, fontSize: 14, fontWeight: '600' },
+  viewAllText: { color: theme.primary, fontSize: 14, fontWeight: '600' },
   ledgerCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: theme.surface,
     padding: 16,
     borderRadius: 16,
     marginBottom: 12,
   },
   ledgerInfo: { flex: 1 },
-  ledgerCategory: { fontSize: 16, fontWeight: '600', color: COLORS.dark },
-  ledgerDate: { fontSize: 12, color: COLORS.gray, marginTop: 2 },
+  ledgerCategory: { fontSize: 16, fontWeight: '600', color: theme.text },
+  ledgerDate: { fontSize: 12, color: theme.textSecondary, marginTop: 2 },
   ledgerStats: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  scoreContainer: { backgroundColor: '#F0FDF4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
-  scoreText: { color: COLORS.success, fontSize: 13, fontWeight: '700' },
-  scoreFraction: { fontSize: 12, color: COLORS.gray },
+  scoreContainer: { backgroundColor: mode === 'light' ? '#F0FDF4' : 'rgba(16, 185, 129, 0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
+  scoreText: { color: theme.success, fontSize: 13, fontWeight: '700' },
+  scoreFraction: { fontSize: 12, color: theme.textSecondary },
   emptyContainer: { alignItems: 'center', padding: 40 },
-  emptyText: { color: COLORS.gray },
+  emptyText: { color: theme.textSecondary },
 });

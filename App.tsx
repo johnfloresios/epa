@@ -17,10 +17,70 @@ import { Quiz } from './src/components/Quiz';
 
 // Constants & Types
 import { EPA608_QUESTIONS } from './src/constants/questions';
-import { Profile, QuizAttempt, Question } from './src/types';
+import { Profile, QuizAttempt } from './src/types';
 
 // Theme Imports
-import { COLORS } from './src/constants/theme';
+import { ThemeProvider, useTheme } from './src/constants/theme';
+
+/**
+ * AppContent component to allow using the useTheme hook within the ThemeProvider
+ */
+const AppContent = ({
+  session,
+  loading,
+  profile,
+  attempts,
+  isDataLoading,
+  isQuizVisible,
+  setIsQuizVisible,
+  isUpgradeModalVisible,
+  setIsUpgradeModalVisible,
+  handleQuizComplete,
+  fetchUserData,
+}: any) => {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+      <StatusBar barStyle={theme.mode === 'light' ? 'dark-content' : 'light-content'} />
+      
+      {loading || isDataLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={theme.primary} />
+          <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+            {isDataLoading ? 'Syncing Profile...' : 'Initializing Pro Engine...'}
+          </Text>
+        </View>
+      ) : !session ? (
+        <AuthGateway onAuthSuccess={() => {}} />
+      ) : isQuizVisible ? (
+        <Quiz 
+          questions={EPA608_QUESTIONS} 
+          onComplete={handleQuizComplete}
+          onCancel={() => setIsQuizVisible(false)}
+        />
+      ) : (
+        <>
+          <Dashboard 
+            profile={profile} 
+            attempts={attempts} 
+            onUpgradePress={() => setIsUpgradeModalVisible(true)} 
+            onLogout={async () => {
+              await supabase.auth.signOut();
+            }}
+            onStartQuiz={() => setIsQuizVisible(true)}
+            onToggleTheme={toggleTheme}
+          />
+          
+          <UpgradeModal 
+            visible={isUpgradeModalVisible} 
+            onClose={() => setIsUpgradeModalVisible(false)} 
+          />
+        </>
+      )}
+    </SafeAreaView>
+  );
+};
 
 export default function App() {
   // --- APP STATE ---
@@ -70,15 +130,21 @@ export default function App() {
 
   const fetchUserData = async (userId: string) => {
     setIsDataLoading(true);
+    setLoading(true);
     try {
       // Fetch Profile and Quiz History in parallel for high performance
       const [profileRes, attemptsRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', userId).single(),
+        supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
         supabase.from('quiz_attempts').select('*').eq('user_id', userId).order('created_at', { ascending: false })
       ]);
 
-      if (profileRes.data) setProfile(profileRes.data as Profile);
-      if (attemptsRes.data) setAttempts(attemptsRes.data as QuizAttempt[]);
+      if (profileRes.data) {
+        setProfile(profileRes.data as Profile);
+      }
+      
+      if (attemptsRes.data) {
+        setAttempts(attemptsRes.data as QuizAttempt[]);
+      }
     } catch (error) {
       console.error('Critical error fetching user data:', error);
     } finally {
@@ -117,83 +183,37 @@ export default function App() {
     }
   };
 
-  /**
-   * RENDER LOGIC
-   */
-
-  // 1. Initial Loading Screen
-  if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Initializing Pro Engine...</Text>
-      </View>
-    );
-  }
-
-  // 2. Auth Gateway (Login/Signup)
-  if (!session) {
-    return <AuthGateway onAuthSuccess={() => {}} />; // onAuthSuccess is handled by onAuthStateChange
-  }
-
-  // 3. Quiz Mode
-  if (isQuizVisible) {
-    return (
-      <Quiz 
-        questions={EPA608_QUESTIONS} 
-        onComplete={handleQuizComplete}
-        onCancel={() => setIsQuizVisible(false)}
-      />
-    );
-  }
-
-  // 4. Premium Dashboard (Logged In)
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      
-      {isDataLoading || (session && !profile) ? (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Syncing Profile...</Text>
-        </View>
-      ) : (
-        <>
-          <Dashboard 
-            profile={profile!} 
-            attempts={attempts} 
-            onUpgradePress={() => setIsUpgradeModalVisible(true)} 
-            onLogout={async () => {
-              await supabase.auth.signOut();
-            }}
-            onStartQuiz={() => setIsQuizVisible(true)}
-          />
-          
-          <UpgradeModal 
-            visible={isUpgradeModalVisible} 
-            onClose={() => setIsUpgradeModalVisible(false)} 
-          />
-        </>
-      )}
-    </SafeAreaView>
+    <ThemeProvider>
+      <AppContent
+        session={session}
+        loading={loading}
+        profile={profile}
+        attempts={attempts}
+        isDataLoading={isDataLoading}
+        isQuizVisible={isQuizVisible}
+        setIsQuizVisible={setIsQuizVisible}
+        isUpgradeModalVisible={isUpgradeModalVisible}
+        setIsUpgradeModalVisible={setIsUpgradeModalVisible}
+        handleQuizComplete={handleQuizComplete}
+        fetchUserData={fetchUserData}
+      />
+    </ThemeProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.light,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
   },
   loadingText: {
     marginTop: 15,
     fontSize: 14,
-    color: COLORS.gray,
     fontWeight: '500',
   },
 });

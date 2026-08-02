@@ -11,13 +11,16 @@ import {
   Platform,
 } from 'react-native';
 import { supabase } from '../../supabase';
-import { COLORS } from '../constants/theme';
+import { useTheme, ThemeColors } from '../constants/theme';
 
 interface AuthGatewayProps {
   onAuthSuccess: () => void;
 }
 
 export const AuthGateway = ({ onAuthSuccess }: AuthGatewayProps) => {
+  const { theme } = useTheme();
+  const styles = getStyles(theme);
+
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -69,7 +72,7 @@ export const AuthGateway = ({ onAuthSuccess }: AuthGatewayProps) => {
             placeholder="Full Name"
             value={fullName}
             onChangeText={setFullName}
-            placeholderTextColor={COLORS.gray}
+            placeholderTextColor={theme.textSecondary}
           />
         )}
         <TextInput
@@ -79,7 +82,7 @@ export const AuthGateway = ({ onAuthSuccess }: AuthGatewayProps) => {
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
-          placeholderTextColor={COLORS.gray}
+          placeholderTextColor={theme.textSecondary}
         />
         <TextInput
           style={styles.input}
@@ -87,13 +90,13 @@ export const AuthGateway = ({ onAuthSuccess }: AuthGatewayProps) => {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
-          placeholderTextColor={COLORS.gray}
+          placeholderTextColor={theme.textSecondary}
         />
 
         {error && <Text style={styles.errorText}>{error}</Text>}
 
         <TouchableOpacity style={styles.button} onPress={handleAuth} disabled={loading}>
-          {loading ? <ActivityIndicator color={COLORS.white} /> : (
+          {loading ? <ActivityIndicator color={theme.white} /> : (
             <Text style={styles.buttonText}>{authMode === 'login' ? 'Sign In' : 'Sign Up'}</Text>
           )}
         </TouchableOpacity>
@@ -111,25 +114,25 @@ export const AuthGateway = ({ onAuthSuccess }: AuthGatewayProps) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 30, backgroundColor: COLORS.white },
+const getStyles = (theme: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', padding: 30, backgroundColor: theme.background },
   header: { marginBottom: 40 },
-  title: { fontSize: 34, fontWeight: '800', color: COLORS.dark },
-  subtitle: { fontSize: 16, color: COLORS.gray, marginTop: 8 },
+  title: { fontSize: 34, fontWeight: '800', color: theme.text },
+  subtitle: { fontSize: 16, color: theme.textSecondary, marginTop: 8 },
   form: { width: '100%' },
   input: {
-    backgroundColor: COLORS.light,
+    backgroundColor: theme.surface,
     padding: 18,
     borderRadius: 12,
     fontSize: 16,
     marginBottom: 16,
-    color: COLORS.dark,
+    color: theme.text,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: theme.border,
   },
-  button: { backgroundColor: COLORS.primary, padding: 18, borderRadius: 12, alignItems: 'center', marginTop: 10 },
-  buttonText: { color: COLORS.white, fontSize: 18, fontWeight: '700' },
+  button: { backgroundColor: theme.primary, padding: 18, borderRadius: 12, alignItems: 'center', marginTop: 10 },
+  buttonText: { color: theme.white, fontSize: 18, fontWeight: '700' },
   switch: { marginTop: 20, alignItems: 'center' },
-  switchText: { color: COLORS.primary, fontSize: 14, fontWeight: '600' },
-  errorText: { color: COLORS.error, fontSize: 14, marginBottom: 10, textAlign: 'center' },
+  switchText: { color: theme.primary, fontSize: 14, fontWeight: '600' },
+  errorText: { color: theme.error, fontSize: 14, marginBottom: 10, textAlign: 'center' },
 });
