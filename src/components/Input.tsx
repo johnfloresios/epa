@@ -5,10 +5,16 @@ import { Text } from '@/components/Text';
 import { useAppTheme } from '@/theme/ThemeContext';
 
 type Props = TextInputProps & {
+  error?: string;
   label?: string;
 };
 
-export const Input = ({ label, style, ...rest }: Props): React.JSX.Element => {
+export const Input = ({
+  error,
+  label,
+  style,
+  ...rest
+}: Props): React.JSX.Element => {
   const theme = useAppTheme();
 
   return (
@@ -24,7 +30,7 @@ export const Input = ({ label, style, ...rest }: Props): React.JSX.Element => {
           styles.input,
           {
             backgroundColor: theme.colors.surface,
-            borderColor: theme.colors.border,
+            borderColor: error ? theme.colors.error : theme.colors.border,
             color: theme.colors.text,
             borderRadius: theme.radius.md,
           },
@@ -32,6 +38,11 @@ export const Input = ({ label, style, ...rest }: Props): React.JSX.Element => {
         ]}
         {...rest}
       />
+      {error ? (
+        <Text tone="error" variant="caption" style={styles.error}>
+          {error}
+        </Text>
+      ) : null}
     </View>
   );
 };
@@ -49,5 +60,8 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: 8,
+  },
+  error: {
+    marginTop: 8,
   },
 });

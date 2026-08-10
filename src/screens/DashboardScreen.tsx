@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { Card, ProgressIndicator, ScreenContainer, Text } from '@/components';
+import { Button, Card, ProgressIndicator, ScreenContainer, Text } from '@/components';
 import { useAppTheme } from '@/theme/ThemeContext';
 import { AppStackParamList } from '@/types/navigation';
 
@@ -27,6 +27,12 @@ export const DashboardScreen = ({ navigation }: Props): React.JSX.Element => {
         <Text tone="muted">
           Phase 1 exposes the app shell and reusable surfaces, not the learning data yet.
         </Text>
+        <Button
+          fullWidth={false}
+          onPress={() => navigation.navigate('Profile')}
+          title="View Profile"
+          variant="ghost"
+        />
       </View>
 
       <Card style={styles.card}>

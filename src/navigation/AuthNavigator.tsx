@@ -9,17 +9,43 @@ import { AuthStackParamList } from '@/types/navigation';
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 type Props = {
+  hasSeenWelcome: boolean;
   onContinue: () => void;
 };
 
-export const AuthNavigator = ({ onContinue }: Props): React.JSX.Element => {
+export const AuthNavigator = ({
+  hasSeenWelcome,
+  onContinue,
+}: Props): React.JSX.Element => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Welcome">
+    <Stack.Navigator
+      initialRouteName={hasSeenWelcome ? 'Login' : 'Welcome'}
+      screenOptions={{
+        headerBackTitleVisible: false,
+      }}
+    >
+      <Stack.Screen
+        name="Welcome"
+        options={{
+          headerShown: false,
+        }}
+      >
         {(props) => <WelcomeScreen {...props} onContinue={onContinue} />}
       </Stack.Screen>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          title: 'Sign In',
+        }}
+      />
+      <Stack.Screen
+        name="SignUp"
+        component={SignUpScreen}
+        options={{
+          title: 'Create Account',
+        }}
+      />
     </Stack.Navigator>
   );
 };

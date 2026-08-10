@@ -1,3 +1,4 @@
+export * from '@/screens/AppLoadingScreen';
 export * from '@/screens/DashboardScreen';
 export * from '@/screens/ExamsScreen';
 export * from '@/screens/LoginScreen';

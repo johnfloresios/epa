@@ -17,6 +17,11 @@ export const WelcomeScreen = ({
 }: Props): React.JSX.Element => {
   const theme = useAppTheme();
 
+  const handleContinue = (): void => {
+    onContinue();
+    navigation.navigate('Login');
+  };
+
   return (
     <ScreenContainer scrollable={false}>
       <LinearGradient
@@ -47,7 +52,7 @@ export const WelcomeScreen = ({
         </View>
 
         <View style={styles.actions}>
-          <Button title="Continue" onPress={onContinue} />
+          <Button title="Continue" onPress={handleContinue} />
           <Button title="Login" variant="ghost" onPress={() => navigation.navigate('Login')} />
           <Button
             title="Sign Up"

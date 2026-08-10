@@ -1,13 +1,8 @@
-import Constants from 'expo-constants';
-
-type ExtraConfig = {
-  supabaseUrl?: string;
-  supabaseAnonKey?: string;
-};
-
-const extra = (Constants.expoConfig?.extra ?? {}) as ExtraConfig;
-
 export const env = {
-  supabaseUrl: extra.supabaseUrl ?? '',
-  supabaseAnonKey: extra.supabaseAnonKey ?? '',
+  supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? '',
+  supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
+  authRequiresEmailConfirmation:
+    process.env.EXPO_PUBLIC_AUTH_REQUIRE_EMAIL_CONFIRMATION === 'true',
 };
+
+export const hasSupabaseEnv = Boolean(env.supabaseUrl && env.supabaseAnonKey);

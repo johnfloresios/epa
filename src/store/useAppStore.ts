@@ -1,27 +1,29 @@
 import { create } from 'zustand';
 
-import { ThemeMode } from '@/types/theme';
+import { ThemeMode, ThemePreference } from '@/types/theme';
 
 type AppState = {
-  isAuthenticated: boolean;
   hasSeenWelcome: boolean;
   colorScheme: ThemeMode;
-  setAuthenticated: (value: boolean) => void;
+  themePreference: ThemePreference;
   setHasSeenWelcome: (value: boolean) => void;
   setColorScheme: (value: ThemeMode) => void;
+  setThemePreference: (value: ThemePreference) => void;
   toggleColorScheme: () => void;
 };
 
 export const useAppStore = create<AppState>((set) => ({
-  isAuthenticated: false,
   hasSeenWelcome: false,
   colorScheme: 'light',
-  setAuthenticated: (value) => set({ isAuthenticated: value }),
+  themePreference: 'system',
   setHasSeenWelcome: (value) => set({ hasSeenWelcome: value }),
   setColorScheme: (value) =>
     set((state) => (state.colorScheme === value ? state : { colorScheme: value })),
+  setThemePreference: (value) =>
+    set((state) => (state.themePreference === value ? state : { themePreference: value })),
   toggleColorScheme: () =>
     set((state) => ({
       colorScheme: state.colorScheme === 'light' ? 'dark' : 'light',
+      themePreference: state.colorScheme === 'light' ? 'dark' : 'light',
     })),
 }));

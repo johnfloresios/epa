@@ -13,12 +13,20 @@ type Props = {
 export const AppProviders = ({ children }: Props): React.JSX.Element => {
   const deviceColorScheme = useColorScheme();
   const colorScheme = useAppStore((state) => state.colorScheme);
+  const themePreference = useAppStore((state) => state.themePreference);
   const setColorScheme = useAppStore((state) => state.setColorScheme);
   const theme = useTheme(colorScheme);
 
   useEffect(() => {
-    setColorScheme(deviceColorScheme === 'dark' ? 'dark' : 'light');
-  }, [deviceColorScheme, setColorScheme]);
+    const resolvedColorScheme =
+      themePreference === 'system'
+        ? deviceColorScheme === 'dark'
+          ? 'dark'
+          : 'light'
+        : themePreference;
+
+    setColorScheme(resolvedColorScheme);
+  }, [deviceColorScheme, setColorScheme, themePreference]);
 
   return (
     <SafeAreaProvider>

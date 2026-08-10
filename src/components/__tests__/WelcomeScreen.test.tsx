@@ -9,7 +9,7 @@ describe('WelcomeScreen', () => {
     const { getByText } = render(
       <AppProviders>
         <WelcomeScreen
-          navigation={{ navigate: jest.fn() } as never}
+          navigation={{ navigate: jest.fn(), replace: jest.fn() } as never}
           onContinue={jest.fn()}
           route={{ key: 'Welcome', name: 'Welcome' } as never}
         />

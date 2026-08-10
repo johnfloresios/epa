@@ -9,12 +9,18 @@
     "scheme": "epa608prep",
     "ios": {
       "supportsTablet": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "bundleIdentifier": "com.epa608prep.app"
     },
     "android": {
       "package": "com.epa608prep.app",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

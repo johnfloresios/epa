@@ -7,7 +7,7 @@ type Variant = 'title' | 'heading' | 'subheading' | 'body' | 'caption';
 
 type Props = TextProps & {
   variant?: Variant;
-  tone?: 'default' | 'muted' | 'inverse' | 'primary';
+  tone?: 'default' | 'muted' | 'inverse' | 'primary' | 'error' | 'success';
   weight?: 'regular' | 'medium' | 'semibold' | 'bold';
 };
 
@@ -38,7 +38,11 @@ export const Text = ({
             ? theme.colors.textInverse
             : tone === 'primary'
               ? theme.colors.primary
-              : theme.colors.text,
+              : tone === 'error'
+                ? theme.colors.error
+                : tone === 'success'
+                  ? theme.colors.success
+                  : theme.colors.text,
       fontSize:
         variant === 'title'
           ? theme.typography.title

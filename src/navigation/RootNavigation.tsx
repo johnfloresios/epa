@@ -3,7 +3,9 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 
 import { AppNavigator } from '@/navigation/AppNavigator';
 import { AuthNavigator } from '@/navigation/AuthNavigator';
+import { AppLoadingScreen } from '@/screens/AppLoadingScreen';
 import { useAppStore } from '@/store/useAppStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useAppTheme } from '@/theme/ThemeContext';
 
 type Props = {
@@ -11,8 +13,9 @@ type Props = {
 };
 
 export const RootNavigation = ({ onContinue }: Props): React.JSX.Element => {
-  const isAuthenticated = useAppStore((state) => state.isAuthenticated);
   const hasSeenWelcome = useAppStore((state) => state.hasSeenWelcome);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isInitializing = useAuthStore((state) => state.isInitializing);
   const theme = useAppTheme();
 
   const navigationTheme = {
@@ -30,7 +33,13 @@ export const RootNavigation = ({ onContinue }: Props): React.JSX.Element => {
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      {isAuthenticated || hasSeenWelcome ? <AppNavigator /> : <AuthNavigator onContinue={onContinue} />}
+      {isInitializing ? (
+        <AppLoadingScreen />
+      ) : isAuthenticated ? (
+        <AppNavigator />
+      ) : (
+        <AuthNavigator hasSeenWelcome={hasSeenWelcome} onContinue={onContinue} />
+      )}
     </NavigationContainer>
   );
 };
