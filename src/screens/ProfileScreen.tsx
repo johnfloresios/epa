@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Constants from 'expo-constants';
 
-import { Button, Card, Input, ScreenContainer, Text } from '@/components';
+import { Button, Card, Input, LogoutButton, ScreenContainer, Text } from '@/components';
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAppTheme } from '@/theme/ThemeContext';
@@ -79,12 +79,13 @@ export const ProfileScreen = (): React.JSX.Element => {
   return (
     <ScreenContainer>
       <View style={styles.header}>
-        <Text variant="heading" weight="bold">
-          Profile
-        </Text>
-        <Text tone="muted">
-          Manage your account identity and sign out securely.
-        </Text>
+        <View style={styles.headerRow}>
+          <Text variant="heading" weight="bold">
+            Profile
+          </Text>
+          <LogoutButton />
+        </View>
+        <Text tone="muted">Manage your account identity and sign out securely.</Text>
       </View>
       <Card style={styles.card}>
         <View style={styles.section}>
@@ -109,7 +110,7 @@ export const ProfileScreen = (): React.JSX.Element => {
             onPress={() => {
               void handleSave();
             }}
-            title="Edit Profile"
+            title="Save Changes"
           />
         </View>
 
@@ -203,6 +204,11 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: 8,
+  },
+  headerRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   infoRow: {
     alignItems: 'center',

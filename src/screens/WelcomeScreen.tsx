@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     minHeight: 320,
     padding: 28,
+    marginBottom: 16,
   },
   panel: {
     gap: 24,

@@ -21,7 +21,7 @@ export const AuthNavigator = ({
     <Stack.Navigator
       initialRouteName={hasSeenWelcome ? 'Login' : 'Welcome'}
       screenOptions={{
-        headerBackTitleVisible: false,
+        headerBackButtonDisplayMode: 'minimal',
       }}
     >
       <Stack.Screen
