@@ -12,6 +12,8 @@ type CustomerInfo = {
 
 type PurchasesModule = {
   configure: (options: { apiKey: string; appUserID?: string }) => void;
+  isConfigured: () => Promise<boolean>;
+  getAppUserID: () => Promise<string>;
   getCustomerInfo: () => Promise<CustomerInfo>;
   getOfferings: () => Promise<{
     all: Record<string, { availablePackages: NativePackage[] }>;
@@ -29,7 +31,7 @@ type NativePackage = {
 };
 
 let purchases: PurchasesModule | null = null;
-let configured = false;
+let activeAppUserId: string | null = null;
 
 const getApiKey = (): string =>
   Platform.OS === 'ios' ? env.revenueCatAppleApiKey : env.revenueCatGoogleApiKey;
@@ -53,17 +55,20 @@ const hasPremiumEntitlement = (customerInfo: CustomerInfo): boolean =>
 
 export const purchaseService = {
   isConfigured: (): boolean => Boolean(getApiKey()),
-  configure: async (appUserId: string | null): Promise<void> => {
+  configure: async (appUserId: string): Promise<void> => {
     const apiKey = getApiKey();
     if (!apiKey) throw new Error('Premium purchases are not configured for this build.');
 
     const sdk = getPurchases();
-    if (!configured) {
-      sdk.configure({ apiKey, appUserID: appUserId ?? undefined });
-      configured = true;
-    } else if (appUserId) {
+    const isNativeSdkConfigured = await sdk.isConfigured();
+
+    if (!isNativeSdkConfigured) {
+      sdk.configure({ apiKey, appUserID: appUserId });
+    } else if (await sdk.getAppUserID() !== appUserId) {
       await sdk.logIn(appUserId);
     }
+
+    activeAppUserId = appUserId;
   },
   getPremiumState: async (): Promise<{ hasPremium: boolean; purchasePackage: PremiumPackage | null }> => {
     const sdk = getPurchases();
@@ -88,6 +93,10 @@ export const purchaseService = {
     };
   },
   purchase: async (purchasePackage: PremiumPackage): Promise<boolean> => {
+    if (!activeAppUserId || await getPurchases().getAppUserID() !== activeAppUserId) {
+      throw new Error('Please sign in again before purchasing Premium.');
+    }
+
     const result = await getPurchases().purchasePackage(
       purchasePackage.nativePackage as NativePackage,
     );

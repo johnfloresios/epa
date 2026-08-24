@@ -23,6 +23,18 @@ export const PremiumPaywall = (): React.JSX.Element => {
       visible={isVisible}
     >
       <ScreenContainer>
+        {status === 'premium' ? (
+          <View accessibilityLiveRegion="polite" style={styles.successState}>
+            <View style={styles.successIcon}>
+              <Text style={styles.successMark} weight="bold">✓</Text>
+            </View>
+            <Text variant="heading" weight="bold">Premium unlocked</Text>
+            <Text style={styles.successCopy} tone="muted">
+              Type I, Type II, Type III, mock exams, and complete progress insights are now available.
+            </Text>
+          </View>
+        ) : (
+          <>
         <View style={styles.headerRow}>
           <Text variant="heading" weight="bold">EPA 608 PRO Premium</Text>
           <Pressable accessibilityLabel="Close Premium upgrade" accessibilityRole="button" onPress={hide}>
@@ -65,6 +77,8 @@ export const PremiumPaywall = (): React.JSX.Element => {
             This is a one-time, non-consumable purchase. The final localized price is shown by your app store before confirmation.
           </Text>
         </Card>
+          </>
+        )}
       </ScreenContainer>
     </Modal>
   );
@@ -78,5 +92,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 16,
     justifyContent: 'space-between',
+  },
+  successCopy: { lineHeight: 23, textAlign: 'center' },
+  successIcon: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(52,211,153,.14)',
+    borderColor: 'rgba(52,211,153,.32)',
+    borderRadius: 36,
+    borderWidth: 1,
+    height: 72,
+    justifyContent: 'center',
+    marginBottom: 8,
+    width: 72,
+  },
+  successMark: { color: '#34D399', fontSize: 38, lineHeight: 44 },
+  successState: {
+    alignItems: 'center',
+    flex: 1,
+    gap: 10,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
   },
 });

@@ -56,7 +56,9 @@ export const usePremiumStore = create<PremiumState>((set, get) => ({
       set({ status: 'unavailable', hasPremium: false, errorMessage: errorText(error) });
     }
   },
-  showPaywall: () => set({ isPaywallVisible: true, errorMessage: '' }),
+  showPaywall: () => set((state) => state.hasPremium
+    ? { isPaywallVisible: false, errorMessage: '' }
+    : { isPaywallVisible: true, errorMessage: '' }),
   hidePaywall: () => set({ isPaywallVisible: false, errorMessage: '' }),
   purchase: async () => {
     const purchasePackage = get().purchasePackage;
@@ -68,7 +70,17 @@ export const usePremiumStore = create<PremiumState>((set, get) => ({
     try {
       set({ isPurchasing: true, errorMessage: '' });
       const hasPremium = await purchaseService.purchase(purchasePackage);
-      set({ status: hasPremium ? 'premium' : 'free', hasPremium, isPaywallVisible: !hasPremium });
+      set({
+        status: hasPremium ? 'premium' : 'free',
+        hasPremium,
+        isPaywallVisible: true,
+        errorMessage: hasPremium
+          ? ''
+          : 'The purchase completed, but the Premium entitlement was not returned. Confirm the product is attached to the “premium” entitlement in RevenueCat.',
+      });
+      if (hasPremium) {
+        setTimeout(() => set({ isPaywallVisible: false }), 1100);
+      }
       return hasPremium;
     } catch (error) {
       set({ errorMessage: errorText(error) });
@@ -84,9 +96,12 @@ export const usePremiumStore = create<PremiumState>((set, get) => ({
       set({
         status: hasPremium ? 'premium' : 'free',
         hasPremium,
-        isPaywallVisible: !hasPremium,
+        isPaywallVisible: true,
         errorMessage: hasPremium ? '' : 'No previous Premium purchase was found.',
       });
+      if (hasPremium) {
+        setTimeout(() => set({ isPaywallVisible: false }), 1100);
+      }
       return hasPremium;
     } catch (error) {
       set({ errorMessage: errorText(error) });

@@ -131,7 +131,17 @@ export const DashboardScreen = ({ navigation }: Props): React.JSX.Element => {
       </LinearGradient>
       <View style={styles.headingRow}>
         <View style={styles.headingCopy}><Text variant="subheading" weight="bold">Certification sections</Text><Text tone="muted" variant="caption">Complete all four to become exam ready.</Text></View>
-        {!hasPremium ? <Pressable onPress={showPaywall} style={[styles.proChip, { backgroundColor: theme.colors.primaryMuted }]}><Ionicons color={theme.colors.primary} name="diamond" size={13} /><Text tone="primary" variant="caption" weight="bold">GO PRO</Text></Pressable> : null}
+        {hasPremium ? (
+          <View accessibilityLabel="Premium active" style={[styles.proChip, { backgroundColor: `${theme.colors.success}1F` }]}>
+            <Ionicons color={theme.colors.success} name="shield-checkmark" size={14} />
+            <Text style={{ color: theme.colors.success }} variant="caption" weight="bold">PREMIUM</Text>
+          </View>
+        ) : (
+          <Pressable onPress={showPaywall} style={[styles.proChip, { backgroundColor: theme.colors.primaryMuted }]}>
+            <Ionicons color={theme.colors.primary} name="person-circle-outline" size={14} />
+            <Text tone="primary" variant="caption" weight="bold">FREE PLAN</Text>
+          </Pressable>
+        )}
       </View>
       {isLoading || isLoadingSections ? <Card style={styles.loadingCard}><Text tone="muted">Calculating your readiness…</Text></Card> : null}
       {!isLoading && !isLoadingSections && hasError ? <Card style={styles.loadingCard}><Text tone="error">{errorMessage || sectionError}</Text><Button onPress={() => { void refresh(); void loadSections(); }} title="Try Again" /></Card> : null}
