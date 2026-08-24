@@ -5,10 +5,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { Button, Card, ProgressIndicator, ScreenContainer, Text } from '@/components';
 import { readinessRequirements } from '@/config/study';
+import { premiumConfig } from '@/config/premium';
 import { useDashboardActivity } from '@/hooks/useDashboardActivity';
 import { contentService } from '@/services/supabase/content';
 import { examService } from '@/services/supabase/exam';
 import { useAuthStore } from '@/store/useAuthStore';
+import { usePremiumStore } from '@/store/usePremiumStore';
 import { ActivitySectionCode, CertificationSection, QuestionDetail, QuestionSummary } from '@/types/content';
 import { AppTabParamList, ExamsStackParamList } from '@/types/navigation';
 import { useAppTheme } from '@/theme/ThemeContext';
@@ -19,6 +21,11 @@ import {
 } from '@/utils/practiceProgress';
 import { translatePracticeError } from '@/utils/practiceErrors';
 import { formatSectionBadge } from '@/utils/sections';
+import {
+  canAccessExamType,
+  selectRandomQuestions,
+  selectUniversalExamQuestions,
+} from '@/utils/premiumAccess';
 
 type Props = NativeStackScreenProps<ExamsStackParamList, 'ExamsHome'>;
 
@@ -54,6 +61,8 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
   const theme = useAppTheme();
   const tabNavigation = navigation.getParent<BottomTabNavigationProp<AppTabParamList>>();
   const userId = useAuthStore((state) => state.user?.id ?? null);
+  const hasPremium = usePremiumStore((state) => state.hasPremium);
+  const showPaywall = usePremiumStore((state) => state.showPaywall);
   const {
     summary: dashboardSummary,
     isLoading: isLoadingReadiness,
@@ -103,12 +112,14 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
     : dashboardSummary.sectionReadiness.find(
         (readiness) => readiness.sectionCode === selectedExamType,
       ) ?? null;
-  const isSelectedExamUnlocked = selectedExamType === 'UNIVERSAL'
+  const meetsStudyRequirements = selectedExamType === 'UNIVERSAL'
     ? dashboardSummary.sectionReadiness.length === 4 &&
       dashboardSummary.sectionReadiness.every(
         (readiness) => readiness.hasMinimumPracticeAccuracy,
       )
     : Boolean(selectedReadiness?.hasMinimumPracticeAccuracy);
+  const hasSelectedExamAccess = canAccessExamType(selectedExamType, hasPremium);
+  const isSelectedExamUnlocked = hasSelectedExamAccess && meetsStudyRequirements;
 
   const examOptions = useMemo(
     () => [
@@ -117,7 +128,7 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
         title: section.name,
         description: section.description ?? `${section.name} section exam`,
         isUnlocked: Boolean(
-          dashboardSummary.sectionReadiness.find(
+          canAccessExamType(section.code, hasPremium) && dashboardSummary.sectionReadiness.find(
             (readiness) => readiness.sectionCode === section.code,
           )?.hasMinimumPracticeAccuracy,
         ),
@@ -127,13 +138,14 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
         title: 'Universal',
         description: 'Mixed exam across Core, Type I, Type II, and Type III questions.',
         isUnlocked:
+          hasPremium &&
           dashboardSummary.sectionReadiness.length === 4 &&
           dashboardSummary.sectionReadiness.every(
             (readiness) => readiness.hasMinimumPracticeAccuracy,
           ),
       },
     ],
-    [dashboardSummary.sectionReadiness, sections],
+    [dashboardSummary.sectionReadiness, hasPremium, sections],
   );
 
   useEffect(() => {
@@ -251,6 +263,11 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
   }, [isExamComplete, navigation, sessionState]);
 
   const startExam = async (): Promise<void> => {
+    if (!hasSelectedExamAccess) {
+      showPaywall();
+      return;
+    }
+
     if (!userId || availableQuestions.length === 0 || !isSelectedExamUnlocked) {
       return;
     }
@@ -259,7 +276,13 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
       setIsStartingExam(true);
       setErrorMessage('');
       const sectionId = selectedExamType === 'UNIVERSAL' ? null : currentSection?.id ?? null;
-      const questionIds = shuffleArray(availableQuestions).map((question) => question.id);
+      const selectedQuestions = selectedExamType === 'UNIVERSAL'
+        ? selectUniversalExamQuestions(
+            availableQuestions,
+            premiumConfig.universalExamQuestionsPerSection,
+          )
+        : selectRandomQuestions(availableQuestions, premiumConfig.sectionExamQuestionCount);
+      const questionIds = selectedQuestions.map((question) => question.id);
       const details = await contentService.getQuestionDetailsByIds(questionIds);
 
       if (details.length === 0) {
@@ -444,6 +467,7 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
           <View style={styles.optionList}>
             {examOptions.map((option) => {
               const isActive = option.code === selectedExamType;
+              const requiresPremium = !canAccessExamType(option.code, hasPremium);
 
               return (
                 <Pressable
@@ -463,7 +487,7 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
                     },
                   ]}
                 >
-                  <Text weight="semibold">{option.title}</Text>
+                  <Text weight="semibold">{`${option.title}${requiresPremium ? ' • Premium' : ''}`}</Text>
                   <Text tone="muted">{option.description}</Text>
                   <Text
                     tone={isActive ? 'primary' : 'muted'}
@@ -496,6 +520,14 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
             <Text tone="error" weight="semibold">{readinessErrorMessage}</Text>
             <Button onPress={() => void refreshReadiness()} title="Retry Readiness" />
           </>
+        ) : !hasSelectedExamAccess ? (
+          <>
+            <Text tone="primary" weight="bold">PREMIUM REQUIRED</Text>
+            <Text tone="muted">
+              Premium unlocks Type I, Type II, Type III, and Universal mock exams.
+            </Text>
+            <Button onPress={showPaywall} title="View Premium" />
+          </>
         ) : !isSelectedExamUnlocked ? (
           <>
             <Text tone="error" weight="bold">LOCKED</Text>
@@ -520,7 +552,9 @@ export const ExamsScreen = ({ navigation, route }: Props): React.JSX.Element => 
           <>
             <Text tone="success" weight="bold">UNLOCKED</Text>
             <Text tone="muted">
-              {`${availableQuestions.length} question${availableQuestions.length === 1 ? '' : 's'} available for ${selectedExamType === 'UNIVERSAL' ? 'Universal' : currentSection?.name ?? 'this exam'}.`}
+              {selectedExamType === 'UNIVERSAL'
+                ? `${premiumConfig.universalExamQuestionsPerSection * 4} randomized questions: ${premiumConfig.universalExamQuestionsPerSection} from each section.`
+                : `${Math.min(availableQuestions.length, premiumConfig.sectionExamQuestionCount)} randomized questions in this timed exam.`}
             </Text>
             <Button
               loading={isStartingExam}

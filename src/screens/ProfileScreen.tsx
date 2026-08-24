@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useAppTheme } from '@/theme/ThemeContext';
 import { ThemePreference } from '@/types/theme';
 import { translateAuthError } from '@/utils/authErrors';
+import { usePremiumStore } from '@/store/usePremiumStore';
 
 const appearanceOptions: ThemePreference[] = ['system', 'light', 'dark'];
 
@@ -26,6 +27,10 @@ export const ProfileScreen = (): React.JSX.Element => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const premiumStatus = usePremiumStore((state) => state.status);
+  const showPaywall = usePremiumStore((state) => state.showPaywall);
+  const restorePremium = usePremiumStore((state) => state.restore);
+  const isPurchasing = usePremiumStore((state) => state.isPurchasing);
   const appVersion = Constants.expoConfig?.version ?? 'Unknown';
   const buildNumber =
     Constants.expoConfig?.ios?.buildNumber ??
@@ -151,6 +156,25 @@ export const ProfileScreen = (): React.JSX.Element => {
               );
             })}
           </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text variant="subheading" weight="semibold">Plan</Text>
+          <View style={styles.infoRow}>
+            <Text tone="muted">Access</Text>
+            <Text tone={premiumStatus === 'premium' ? 'success' : 'default'} weight="bold">
+              {premiumStatus === 'premium' ? 'PREMIUM' : 'FREE'}
+            </Text>
+          </View>
+          {premiumStatus !== 'premium' ? (
+            <Button onPress={showPaywall} title="View Premium" />
+          ) : null}
+          <Button
+            loading={isPurchasing}
+            onPress={() => void restorePremium()}
+            title="Restore Purchase"
+            variant="ghost"
+          />
         </View>
 
         <View style={styles.section}>

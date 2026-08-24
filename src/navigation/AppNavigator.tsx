@@ -232,9 +232,15 @@ export const AppNavigator = (): React.JSX.Element => {
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.border,
-          height: 72,
-          paddingBottom: 10,
-          paddingTop: 8,
+          borderTopWidth: 1,
+          height: 76,
+          paddingBottom: 11,
+          paddingTop: 9,
+          shadowColor: theme.colors.primary,
+          shadowOffset: { width: 0, height: -8 },
+          shadowOpacity: 0.1,
+          shadowRadius: 18,
+          elevation: 16,
         },
         tabBarIcon: ({ color, size, focused }) => {
           const baseIcon = tabIcons[route.name as keyof AppTabParamList];

@@ -7,6 +7,7 @@ import { Button, Card, ScreenContainer, Text } from '@/components';
 import { usePracticeProgress } from '@/hooks/usePracticeProgress';
 import { useAppTheme } from '@/theme/ThemeContext';
 import { AppTabParamList, ProgressStackParamList } from '@/types/navigation';
+import { usePremiumStore } from '@/store/usePremiumStore';
 import {
   formatAccuracyPercentage,
   formatPracticeActivityTimestamp,
@@ -18,6 +19,8 @@ export const ProgressScreen = ({ navigation }: Props): React.JSX.Element => {
   const theme = useAppTheme();
   const { summary, isLoading, errorMessage, refresh } = usePracticeProgress();
   const tabNavigation = navigation.getParent<BottomTabNavigationProp<AppTabParamList>>();
+  const hasPremium = usePremiumStore((state) => state.hasPremium);
+  const showPaywall = usePremiumStore((state) => state.showPaywall);
   const hasHistory =
     summary.practiceSessions > 0 ||
     summary.examAttempts > 0 ||
@@ -35,13 +38,24 @@ export const ProgressScreen = ({ navigation }: Props): React.JSX.Element => {
         </Text>
       </View>
 
-      {isLoading ? (
+      {!hasPremium ? (
+        <Card style={styles.card}>
+          <Text tone="primary" variant="caption" weight="bold">PREMIUM DASHBOARD</Text>
+          <Text variant="subheading" weight="semibold">Understand every result</Text>
+          <Text tone="muted">
+            Unlock section metrics, recent results, and explanation tracking with one purchase.
+          </Text>
+          <Button onPress={showPaywall} title="Unlock Progress Dashboard" />
+        </Card>
+      ) : null}
+
+      {hasPremium && isLoading ? (
         <Card style={styles.card}>
           <Text tone="muted">Loading progress...</Text>
         </Card>
       ) : null}
 
-      {!isLoading && errorMessage ? (
+      {hasPremium && !isLoading && errorMessage ? (
         <Card style={styles.card}>
           <Text tone="error" weight="semibold">
             {errorMessage}
@@ -50,7 +64,7 @@ export const ProgressScreen = ({ navigation }: Props): React.JSX.Element => {
         </Card>
       ) : null}
 
-      {!isLoading && !errorMessage && !hasHistory ? (
+      {hasPremium && !isLoading && !errorMessage && !hasHistory ? (
         <Card style={styles.card}>
           <Text variant="subheading" weight="semibold">
             No study history yet.
@@ -70,7 +84,7 @@ export const ProgressScreen = ({ navigation }: Props): React.JSX.Element => {
         </Card>
       ) : null}
 
-      {!isLoading && !errorMessage && hasHistory ? (
+      {hasPremium && !isLoading && !errorMessage && hasHistory ? (
         <>
           <Card style={styles.card}>
             <Text variant="subheading" weight="semibold">

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "EPA Section 608 technician certification",
+    "url": "https://www.epa.gov/section608/section-608-technician-certification",
+    "sections": ["CORE", "TYPE_I", "TYPE_II", "TYPE_III"]
+  },
+  {
+    "name": "EPA Section 608 definitions",
+    "url": "https://www.epa.gov/section608/definitions-section-608-terms",
+    "sections": ["CORE", "TYPE_I", "TYPE_II", "TYPE_III"]
+  },
+  {
+    "name": "EPA stationary refrigeration service practices",
+    "url": "https://www.epa.gov/section608/stationary-refrigeration-service-practice-requirements",
+    "sections": ["CORE", "TYPE_I", "TYPE_II", "TYPE_III"]
+  },
+  {
+    "name": "EPA stationary refrigeration leak repair",
+    "url": "https://www.epa.gov/section608/stationary-refrigeration-leak-repair-requirements",
+    "sections": ["CORE", "TYPE_II", "TYPE_III"]
+  },
+  {
+    "name": "EPA stationary refrigeration safe disposal",
+    "url": "https://www.epa.gov/section608/stationary-refrigeration-safe-disposal-requirements",
+    "sections": ["CORE", "TYPE_I", "TYPE_II", "TYPE_III"]
+  }
+]

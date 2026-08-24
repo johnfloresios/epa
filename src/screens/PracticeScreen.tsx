@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { Button, Card, ProgressIndicator, ScreenContainer, Text } from '@/components';
@@ -14,10 +13,13 @@ import {
   QuestionSummary,
   Topic,
 } from '@/types/content';
-import { AppTabParamList, PracticeStackParamList } from '@/types/navigation';
+import { PracticeStackParamList } from '@/types/navigation';
 import { useAppTheme } from '@/theme/ThemeContext';
 import { translateContentError } from '@/utils/contentErrors';
 import { translatePracticeError } from '@/utils/practiceErrors';
+import { premiumConfig } from '@/config/premium';
+import { usePremiumStore } from '@/store/usePremiumStore';
+import { canAccessSectionBank } from '@/utils/premiumAccess';
 
 type Props = NativeStackScreenProps<PracticeStackParamList, 'PracticeHome'>;
 
@@ -38,7 +40,7 @@ type SessionState = {
   answeredCount: number;
 };
 
-const PRACTICE_QUESTION_COUNT = 20;
+const PREMIUM_PRACTICE_QUESTION_COUNT = 20;
 
 const shuffleArray = <T,>(items: T[]): T[] => {
   const copy = [...items];
@@ -58,8 +60,9 @@ const prepareSessionQuestion = (question: QuestionDetail): SessionQuestion => ({
 
 export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element => {
   const theme = useAppTheme();
-  const tabNavigation = navigation.getParent<BottomTabNavigationProp<AppTabParamList>>();
   const userId = useAuthStore((state) => state.user?.id ?? null);
+  const hasPremium = usePremiumStore((state) => state.hasPremium);
+  const showPaywall = usePremiumStore((state) => state.showPaywall);
   const presetSectionId = route.params?.presetSectionId ?? null;
   const presetTopicId = route.params?.presetTopicId ?? null;
   const presetTitle = route.params?.presetTitle ?? null;
@@ -86,6 +89,12 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
 
   const selectedSection =
     sections.find((section) => section.id === selectedSectionId) ?? null;
+  const canAccessSelectedSection = selectedSection
+    ? canAccessSectionBank(selectedSection.code, hasPremium)
+    : true;
+  const practiceQuestionCount = selectedSection?.code === 'CORE'
+    ? premiumConfig.freeCoreQuizQuestionCount
+    : PREMIUM_PRACTICE_QUESTION_COUNT;
   const selectedTopic = topics.find((topic) => topic.id === selectedTopicId) ?? null;
 
   const currentQuestion =
@@ -204,31 +213,6 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
   }, [selectedSectionId, selectedTopicId]);
 
   useEffect(() => {
-    tabNavigation?.setOptions({
-      tabBarStyle: {
-        backgroundColor: theme.colors.surface,
-        borderTopColor: theme.colors.border,
-        display: sessionState && !isSessionComplete ? 'none' : 'flex',
-        height: 72,
-        paddingBottom: 10,
-        paddingTop: 8,
-      },
-    });
-
-    return () => {
-      tabNavigation?.setOptions({
-        tabBarStyle: {
-          backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.border,
-          height: 72,
-          paddingBottom: 10,
-          paddingTop: 8,
-        },
-      });
-    };
-  }, [isSessionComplete, sessionState, tabNavigation, theme.colors.border, theme.colors.surface]);
-
-  useEffect(() => {
     const hasActiveSession = Boolean(sessionState) && !isSessionComplete;
 
     if (!hasActiveSession) {
@@ -273,7 +257,12 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
       return;
     }
 
-    if (availableQuestions.length < PRACTICE_QUESTION_COUNT) {
+    if (!canAccessSelectedSection) {
+      showPaywall();
+      return;
+    }
+
+    if (availableQuestions.length < practiceQuestionCount) {
       return;
     }
 
@@ -282,7 +271,7 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
       setErrorMessage('');
 
       const selectedQuestionIds = shuffleArray(availableQuestions)
-        .slice(0, PRACTICE_QUESTION_COUNT)
+        .slice(0, practiceQuestionCount)
         .map((question) => question.id);
 
       const details = await contentService.getQuestionDetailsByIds(selectedQuestionIds);
@@ -335,7 +324,7 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
       return;
     }
 
-    if (selectedSectionId && availableQuestions.length >= PRACTICE_QUESTION_COUNT) {
+    if (selectedSectionId && canAccessSelectedSection && availableQuestions.length >= practiceQuestionCount) {
       hasAutoStartedPresetRef.current = true;
       void startSession({
         overrideLabel: presetTitle,
@@ -343,10 +332,12 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
     }
   }, [
     availableQuestions.length,
+    canAccessSelectedSection,
     isLoadingAvailable,
     isLoadingSections,
     isLoadingSession,
     presetTitle,
+    practiceQuestionCount,
     selectedSectionId,
     sessionState,
     shouldAutoStart,
@@ -494,6 +485,7 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
             <View style={styles.optionList}>
               {sections.map((section) => {
                 const isActive = section.id === selectedSectionId;
+                const isLocked = !canAccessSectionBank(section.code, hasPremium);
 
                 return (
                   <Pressable
@@ -501,6 +493,10 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
                     accessibilityRole="button"
                     accessibilityState={{ selected: isActive }}
                     onPress={() => {
+                      if (isLocked) {
+                        showPaywall();
+                        return;
+                      }
                       setSelectedSectionId(section.id);
                       setSelectedTopicId(null);
                     }}
@@ -515,7 +511,7 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
                       },
                     ]}
                   >
-                    <Text weight="semibold">{section.name}</Text>
+                    <Text weight="semibold">{`${section.name}${isLocked ? ' • Premium' : ''}`}</Text>
                     {section.description ? (
                       <Text tone="muted">{section.description}</Text>
                     ) : null}
@@ -541,7 +537,13 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
         <Text tone="muted">
           Topic selection is optional. You can practice the full section instead.
         </Text>
-        {isLoadingTopics ? (
+        {!canAccessSelectedSection ? (
+          <View style={styles.detailBlock}>
+            <Text tone="primary" weight="bold">PREMIUM REQUIRED</Text>
+            <Text tone="muted">Unlock Premium to practice Type I, Type II, and Type III questions.</Text>
+            <Button onPress={showPaywall} title="View Premium" />
+          </View>
+        ) : isLoadingTopics ? (
           <Text tone="muted">Loading topics...</Text>
         ) : (
           <View style={styles.optionList}>
@@ -615,13 +617,13 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
             )}
           </View>
         )}
-        {isLoadingAvailable ? (
+        {!canAccessSelectedSection ? null : isLoadingAvailable ? (
           <Text tone="muted">Loading questions...</Text>
-        ) : availableQuestions.length < PRACTICE_QUESTION_COUNT ? (
+        ) : availableQuestions.length < practiceQuestionCount ? (
           <View style={styles.detailBlock}>
             {availableQuestions.length === 0 ? renderEmptyState() : (
               <Text tone="muted">
-                {`This selection needs at least ${PRACTICE_QUESTION_COUNT} questions before practice can begin.`}
+                {`This selection needs at least ${practiceQuestionCount} questions before practice can begin.`}
               </Text>
             )}
           </View>
@@ -631,7 +633,7 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
             onPress={() => {
               void startSession();
             }}
-            title={`Start ${PRACTICE_QUESTION_COUNT}-Question Practice`}
+            title={`Start ${practiceQuestionCount}-Question Practice`}
           />
         )}
       </Card>
@@ -858,7 +860,7 @@ export const PracticeScreen = ({ navigation, route }: Props): React.JSX.Element 
           Practice
         </Text>
         <Text tone="muted">
-          Choose a topic and start a randomized 20-question practice session.
+          Core includes a free randomized 25-question quiz. Premium unlocks the Type I, II, and III banks.
         </Text>
       </View>
 
