@@ -120,6 +120,7 @@ export type DashboardNextStep = 'practice_count' | 'practice_accuracy' | 'practi
 
 export interface DashboardSectionReadiness {
   sectionCode: ActivitySectionCode;
+  hasStarted: boolean;
   practiceAnsweredCount: number;
   practiceCorrectCount: number;
   practiceAccuracy: number;

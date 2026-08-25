@@ -25,6 +25,9 @@ export const buildDashboardSectionReadiness = (
 ): DashboardSectionReadiness[] =>
   certificationSectionCodes.map((sectionCode) => {
     const sectionPractice = practiceResults.filter((result) => result.sectionCode === sectionCode);
+    const hasStarted =
+      sectionPractice.length > 0 ||
+      examResults.some((result) => result.sectionCode === sectionCode);
     const practiceAnsweredCount = sectionPractice.length;
     const practiceCorrectCount = sectionPractice.filter((result) => result.isCorrect).length;
     const practiceAccuracy = practiceAnsweredCount === 0
@@ -61,6 +64,7 @@ export const buildDashboardSectionReadiness = (
 
     return {
       sectionCode,
+      hasStarted,
       practiceAnsweredCount,
       practiceCorrectCount,
       practiceAccuracy,

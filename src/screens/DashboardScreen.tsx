@@ -30,7 +30,7 @@ const sectionMeta: Record<CertificationSectionCode, { icon: keyof typeof Ionicon
 };
 
 const emptyReadiness = (sectionCode: CertificationSectionCode): DashboardSectionReadiness => ({
-  sectionCode, practiceAnsweredCount: 0, practiceCorrectCount: 0, practiceAccuracy: 0,
+  sectionCode, hasStarted: false, practiceAnsweredCount: 0, practiceCorrectCount: 0, practiceAccuracy: 0,
   hasMinimumPracticeQuestions: false, hasMinimumPracticeAccuracy: false,
   hasPassedPracticeExam: false, isReady: false, completedStepCount: 0, nextStep: 'practice_count',
 });
@@ -86,6 +86,7 @@ export const DashboardScreen = ({ navigation }: Props): React.JSX.Element => {
 
   const renderSection = (item: SectionItem): React.JSX.Element => {
     const locked = !canAccessSectionBank(item.code, hasPremium);
+    const notStarted = !item.readiness.hasStarted;
     const meta = sectionMeta[item.code];
     const accuracy = Math.round(item.readiness.practiceAccuracy * 100);
     const questionProgress = Math.min(item.readiness.practiceAnsweredCount / readinessRequirements.minimumPracticeQuestions, 1);
@@ -102,9 +103,9 @@ export const DashboardScreen = ({ navigation }: Props): React.JSX.Element => {
           <View style={styles.cardTop}>
             <View style={[styles.sectionIcon, { backgroundColor: `${meta.accent}18` }]}><Ionicons color={meta.accent} name={meta.icon} size={25} /></View>
             <View style={styles.sectionTitle}><Text variant="subheading" weight="bold">{item.name}</Text><Text tone="muted" variant="caption">{meta.label}</Text></View>
-            <View style={[styles.badge, { backgroundColor: item.readiness.isReady ? `${theme.colors.success}20` : locked ? theme.colors.surfaceAlt : `${theme.colors.warning}1A` }]}>
-              <Ionicons color={item.readiness.isReady ? theme.colors.success : locked ? theme.colors.textMuted : theme.colors.warning} name={item.readiness.isReady ? 'checkmark-circle' : locked ? 'lock-closed' : 'time'} size={13} />
-              <Text style={{ color: item.readiness.isReady ? theme.colors.success : locked ? theme.colors.textMuted : theme.colors.warning }} variant="caption" weight="bold">{item.readiness.isReady ? 'READY' : locked ? 'PREMIUM' : 'IN PROGRESS'}</Text>
+            <View style={[styles.badge, { backgroundColor: item.readiness.isReady ? `${theme.colors.success}20` : locked || notStarted ? theme.colors.surfaceAlt : `${theme.colors.warning}1A` }]}> 
+              <Ionicons color={item.readiness.isReady ? theme.colors.success : locked || notStarted ? theme.colors.textMuted : theme.colors.warning} name={item.readiness.isReady ? 'checkmark-circle' : locked ? 'lock-closed' : notStarted ? 'ellipse-outline' : 'time'} size={13} />
+              <Text style={{ color: item.readiness.isReady ? theme.colors.success : locked || notStarted ? theme.colors.textMuted : theme.colors.warning }} variant="caption" weight="bold">{item.readiness.isReady ? 'READY' : locked ? 'PREMIUM' : notStarted ? 'NOT STARTED' : 'IN PROGRESS'}</Text>
             </View>
           </View>
           <View style={styles.metricsRow}>

@@ -8,8 +8,20 @@ describe('buildDashboardSectionReadiness', () => {
     const result = buildDashboardSectionReadiness([], []);
 
     expect(result).toHaveLength(4);
+    expect(result.every((section) => !section.hasStarted)).toBe(true);
     expect(result.every((section) => !section.isReady)).toBe(true);
     expect(result.every((section) => section.nextStep === 'practice_count')).toBe(true);
+  });
+
+  it('marks a section started after practice or an exam attempt', () => {
+    const result = buildDashboardSectionReadiness(
+      practiceResults('CORE', 1, 1),
+      [{ sectionCode: 'TYPE_II', score: 0.4 }],
+    );
+
+    expect(result.find((section) => section.sectionCode === 'CORE')?.hasStarted).toBe(true);
+    expect(result.find((section) => section.sectionCode === 'TYPE_II')?.hasStarted).toBe(true);
+    expect(result.find((section) => section.sectionCode === 'TYPE_I')?.hasStarted).toBe(false);
   });
 
   it('recommends the exam when Core practice requirements are complete', () => {

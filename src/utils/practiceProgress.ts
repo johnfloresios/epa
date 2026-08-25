@@ -1,4 +1,4 @@
-import { PracticeProgressSummary } from '@/types/practice';
+import { PracticePerformanceItem, PracticeProgressSummary } from '@/types/practice';
 
 export const calculateAccuracy = (correctCount: number, answeredCount: number): number => {
   if (answeredCount <= 0) {
@@ -7,6 +7,25 @@ export const calculateAccuracy = (correctCount: number, answeredCount: number): 
 
   return correctCount / answeredCount;
 };
+
+export const buildSectionPerformanceItems = (
+  sections: { id: string; name: string }[],
+  groups: Map<string, { correctCount: number; answeredCount: number }>,
+): PracticePerformanceItem[] =>
+  sections.map((section) => {
+    const metrics = groups.get(section.id) ?? {
+      correctCount: 0,
+      answeredCount: 0,
+    };
+
+    return {
+      id: section.id,
+      label: section.name,
+      accuracy: calculateAccuracy(metrics.correctCount, metrics.answeredCount),
+      correctCount: metrics.correctCount,
+      answeredCount: metrics.answeredCount,
+    };
+  });
 
 export const formatAccuracyPercentage = (accuracy: number): string =>
   `${Math.round(Math.min(Math.max(accuracy, 0), 1) * 100)}%`;

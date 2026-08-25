@@ -16,6 +16,7 @@ import {
 } from '@/types/practice';
 import { Database } from '@/types/supabase';
 import {
+  buildSectionPerformanceItems,
   calculateAccuracy,
   createEmptyPracticeProgressSummary,
 } from '@/utils/practiceProgress';
@@ -541,7 +542,7 @@ export const practiceService = {
       examAttempts: examAttempts.length,
       questionsAnswered: answers.length + examAnswers.length,
       correctAnswers: totalCorrect,
-      sectionPerformance: buildPerformanceItems(sectionGroups, sectionLabels),
+      sectionPerformance: buildSectionPerformanceItems(sections, sectionGroups),
       topicPerformance: buildPerformanceItems(topicGroups, topicLabels),
       recentSessions: [...recentSessions, ...recentExams].sort(
         (left, right) =>
