@@ -5,8 +5,8 @@ import { AppProviders } from '@/providers/AppProviders';
 import { WelcomeScreen } from '@/screens/WelcomeScreen';
 
 describe('WelcomeScreen', () => {
-  it('renders the primary call to action', () => {
-    const { getByText } = render(
+  it('offers login and sign up without a generic continue action', () => {
+    const { getByText, queryByText } = render(
       <AppProviders>
         <WelcomeScreen
           navigation={{ navigate: jest.fn(), replace: jest.fn() } as never}
@@ -17,6 +17,8 @@ describe('WelcomeScreen', () => {
     );
 
     expect(getByText('EPA 608 PRO')).toBeTruthy();
-    expect(getByText('Continue')).toBeTruthy();
+    expect(getByText('Login')).toBeTruthy();
+    expect(getByText('Sign Up')).toBeTruthy();
+    expect(queryByText('Continue')).toBeNull();
   });
 });

@@ -15,6 +15,22 @@ describe('validateSignIn', () => {
 });
 
 describe('validateSignUp', () => {
+  it('requires display name, email, password, and password confirmation', () => {
+    expect(
+      validateSignUp({
+        displayName: '   ',
+        email: '   ',
+        password: '',
+        confirmPassword: '',
+      }),
+    ).toEqual({
+      confirmPassword: 'Please confirm your password.',
+      displayName: 'Display name is required.',
+      email: 'Email is required.',
+      password: 'Password is required.',
+    });
+  });
+
   it('returns field errors for invalid sign-up values', () => {
     expect(
       validateSignUp({

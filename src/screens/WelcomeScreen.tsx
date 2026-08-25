@@ -17,9 +17,9 @@ export const WelcomeScreen = ({
 }: Props): React.JSX.Element => {
   const theme = useAppTheme();
 
-  const handleContinue = (): void => {
+  const handleAuthChoice = (screen: 'Login' | 'SignUp'): void => {
     onContinue();
-    navigation.navigate('Login');
+    navigation.navigate(screen);
   };
 
   return (
@@ -52,12 +52,11 @@ export const WelcomeScreen = ({
         </View>
 
         <View style={styles.actions}>
-          <Button title="Continue" onPress={handleContinue} />
-          <Button title="Login" variant="ghost" onPress={() => navigation.navigate('Login')} />
+          <Button title="Login" onPress={() => handleAuthChoice('Login')} />
           <Button
             title="Sign Up"
             variant="secondary"
-            onPress={() => navigation.navigate('SignUp')}
+            onPress={() => handleAuthChoice('SignUp')}
           />
         </View>
       </Card>

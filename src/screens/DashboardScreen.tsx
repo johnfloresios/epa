@@ -45,6 +45,7 @@ const Metric = ({ label, value, accent }: { label: string; value: string; accent
 export const DashboardScreen = ({ navigation }: Props): React.JSX.Element => {
   const theme = useAppTheme();
   const profile = useAuthStore((state) => state.profile);
+  const user = useAuthStore((state) => state.user);
   const { summary, isLoading, errorMessage, refresh } = useDashboardActivity();
   const hasPremium = usePremiumStore((state) => state.hasPremium);
   const showPaywall = usePremiumStore((state) => state.showPaywall);
@@ -72,7 +73,12 @@ export const DashboardScreen = ({ navigation }: Props): React.JSX.Element => {
   }), [sections, summary.sectionReadiness]);
 
   const readyCount = items.filter((item) => item.readiness.isReady).length;
-  const firstName = profile?.displayName?.trim().split(/\s+/)[0] ?? 'Technician';
+  const displayName =
+    profile?.displayName?.trim() ||
+    (typeof user?.user_metadata.display_name === 'string'
+      ? user.user_metadata.display_name.trim()
+      : '') ||
+    'Technician';
   const openPractice = (item: SectionItem): void => {
     if (!canAccessSectionBank(item.code, hasPremium)) { showPaywall(); return; }
     tabNavigation?.navigate('PracticeTab', { screen: 'PracticeHome', params: { presetSectionId: item.id, presetTitle: `${item.name} Practice` } });
@@ -125,7 +131,7 @@ export const DashboardScreen = ({ navigation }: Props): React.JSX.Element => {
     <ScreenContainer style={styles.screen}>
       <LinearGradient colors={theme.mode === 'dark' ? ['#251044', '#141020', '#090711'] : ['#7C3AED', '#8B5CF6', '#A855F7']} end={{ x: 1, y: 1 }} start={{ x: 0, y: 0 }} style={styles.hero}>
         <View style={styles.heroGlow} />
-        <View style={styles.heroTop}><View><Text style={styles.eyebrow} variant="caption" weight="bold">EPA 608 PRO</Text><Text style={styles.heroTitle} variant="heading" weight="bold">Welcome back, {firstName}</Text></View><View style={styles.heroIcon}><Ionicons color="#22D3EE" name="shield-checkmark" size={28} /></View></View>
+        <View style={styles.heroTop}><View><Text style={styles.eyebrow} variant="caption" weight="bold">EPA 608 PRO</Text><Text style={styles.heroTitle} variant="heading" weight="bold">Welcome, {displayName}</Text></View><View style={styles.heroIcon}><Ionicons color="#22D3EE" name="shield-checkmark" size={28} /></View></View>
         <Text style={styles.heroCopy}>Your personalized path to certification. Keep every section above target before exam day.</Text>
         <View style={styles.heroStats}><Metric accent="#22D3EE" label="SECTIONS READY" value={`${readyCount}/4`} /><View style={styles.heroDivider} /><Metric accent="#FAF8FF" label="QUESTIONS" value={`${summary.questionsAnswered}`} /><View style={styles.heroDivider} /><Metric accent="#34D399" label="ACCURACY" value={`${Math.round(summary.overallAccuracy * 100)}%`} /></View>
       </LinearGradient>
