@@ -1,4 +1,4 @@
-# EPA 608 PRO
+# EPA 608 Ultimate
 
 ## Premium purchase setup
 

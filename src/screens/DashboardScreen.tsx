@@ -131,7 +131,7 @@ export const DashboardScreen = ({ navigation }: Props): React.JSX.Element => {
     <ScreenContainer style={styles.screen}>
       <LinearGradient colors={theme.mode === 'dark' ? ['#251044', '#141020', '#090711'] : ['#7C3AED', '#8B5CF6', '#A855F7']} end={{ x: 1, y: 1 }} start={{ x: 0, y: 0 }} style={styles.hero}>
         <View style={styles.heroGlow} />
-        <View style={styles.heroTop}><View><Text style={styles.eyebrow} variant="caption" weight="bold">EPA 608 PRO</Text><Text style={styles.heroTitle} variant="heading" weight="bold">Welcome, {displayName}</Text></View><View style={styles.heroIcon}><Ionicons color="#22D3EE" name="shield-checkmark" size={28} /></View></View>
+        <View style={styles.heroTop}><View><Text style={styles.eyebrow} variant="caption" weight="bold">EPA 608 Ultimate</Text><Text style={styles.heroTitle} variant="heading" weight="bold">Welcome, {displayName}</Text></View></View>
         <Text style={styles.heroCopy}>Your personalized path to certification. Keep every section above target before exam day.</Text>
         <View style={styles.heroStats}><Metric accent="#22D3EE" label="SECTIONS READY" value={`${readyCount}/4`} /><View style={styles.heroDivider} /><Metric accent="#FAF8FF" label="QUESTIONS" value={`${summary.questionsAnswered}`} /><View style={styles.heroDivider} /><Metric accent="#34D399" label="ACCURACY" value={`${Math.round(summary.overallAccuracy * 100)}%`} /></View>
       </LinearGradient>
@@ -164,7 +164,6 @@ const styles = StyleSheet.create({
   headingCopy: { flex: 1, gap: 3 }, headingRow: { alignItems: 'center', flexDirection: 'row', gap: 12, marginBottom: 14, marginTop: 26 },
   hero: { borderRadius: 26, overflow: 'hidden', padding: 22 }, heroCopy: { color: '#CFC5DD', fontSize: 14, lineHeight: 21, marginTop: 14, maxWidth: 350 },
   heroDivider: { backgroundColor: 'rgba(255,255,255,.17)', height: 35, width: 1 }, heroGlow: { backgroundColor: 'rgba(34,211,238,.10)', borderRadius: 100, height: 180, position: 'absolute', right: -60, top: -80, width: 180 },
-  heroIcon: { alignItems: 'center', backgroundColor: 'rgba(34,211,238,.12)', borderColor: 'rgba(34,211,238,.25)', borderRadius: 16, borderWidth: 1, height: 50, justifyContent: 'center', width: 50 },
   heroStats: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-around', marginTop: 24 }, heroTitle: { color: '#FAF8FF', fontSize: 26, marginTop: 5 }, heroTop: { alignItems: 'flex-start', flexDirection: 'row', justifyContent: 'space-between' },
   eyebrow: { color: '#C084FC', letterSpacing: 1.6 }, loadingCard: { gap: 14, marginBottom: 16 }, metric: { alignItems: 'center', flex: 1, gap: 3 },
   metricDivider: { height: 34, width: 1 }, metricsRow: { alignItems: 'center', flexDirection: 'row' }, nextCopy: { flex: 1, gap: 3 },

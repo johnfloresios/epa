@@ -61,7 +61,7 @@ export const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
     <ScreenContainer>
       <View style={styles.header}>
         <Text variant="caption" tone="primary" weight="semibold">
-          EPA 608 PRO
+          EPA 608 Ultimate
         </Text>
         <Text variant="heading" weight="bold">
           Sign In

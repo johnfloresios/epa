@@ -11,7 +11,7 @@ export const AppLoadingScreen = (): React.JSX.Element => {
     <ScreenContainer scrollable={false}>
       <View style={styles.content}>
         <Text variant="subheading" tone="primary" weight="semibold">
-          EPA 608 PRO
+          EPA 608 Ultimate
         </Text>
         <ActivityIndicator color={theme.colors.primary} size="large" />
         <Text tone="muted">Loading...</Text>

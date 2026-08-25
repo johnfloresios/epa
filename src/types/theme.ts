@@ -1,5 +1,5 @@
 export type ThemeMode = 'light' | 'dark';
-export type ThemePreference = 'system' | ThemeMode;
+export type ThemePreference = ThemeMode;
 
 export type ThemeColors = {
   primary: string;

@@ -36,7 +36,7 @@ export const PremiumPaywall = (): React.JSX.Element => {
         ) : (
           <>
         <View style={styles.headerRow}>
-          <Text variant="heading" weight="bold">EPA 608 PRO Premium</Text>
+          <Text variant="heading" weight="bold">EPA 608 Ultimate Premium</Text>
           <Pressable accessibilityLabel="Close Premium upgrade" accessibilityRole="button" onPress={hide}>
             <Text tone="primary" weight="semibold">Close</Text>
           </Pressable>

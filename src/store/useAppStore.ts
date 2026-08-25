@@ -15,7 +15,7 @@ type AppState = {
 export const useAppStore = create<AppState>((set) => ({
   hasSeenWelcome: false,
   colorScheme: 'light',
-  themePreference: 'system',
+  themePreference: 'light',
   setHasSeenWelcome: (value) => set({ hasSeenWelcome: value }),
   setColorScheme: (value) =>
     set((state) => (state.colorScheme === value ? state : { colorScheme: value })),

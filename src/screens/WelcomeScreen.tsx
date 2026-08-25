@@ -31,7 +31,7 @@ export const WelcomeScreen = ({
         style={[styles.hero, { borderRadius: theme.radius.xl }]}
       >
         <Text tone="inverse" weight="semibold" style={styles.eyebrow}>
-          EPA 608 PRO
+          EPA 608 Ultimate
         </Text>
         <Text tone="inverse" variant="title" weight="bold" style={styles.title}>
           Pass Your Exam With Confidence

@@ -54,7 +54,7 @@ const assertOfficialSource = (url) => {
 const fetchSource = async (source) => {
   assertOfficialSource(source.url);
   const response = await fetch(source.url, {
-    headers: { 'user-agent': 'EPA608PRO-Question-Draft-Auditor/1.0' },
+    headers: { 'user-agent': 'EPA608Ultimate-Question-Draft-Auditor/1.0' },
   });
 
   if (!response.ok) {

@@ -16,7 +16,7 @@ describe('WelcomeScreen', () => {
       </AppProviders>,
     );
 
-    expect(getByText('EPA 608 PRO')).toBeTruthy();
+    expect(getByText('EPA 608 Ultimate')).toBeTruthy();
     expect(getByText('Login')).toBeTruthy();
     expect(getByText('Sign Up')).toBeTruthy();
     expect(queryByText('Continue')).toBeNull();

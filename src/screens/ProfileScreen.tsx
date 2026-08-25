@@ -10,7 +10,7 @@ import { ThemePreference } from '@/types/theme';
 import { translateAuthError } from '@/utils/authErrors';
 import { usePremiumStore } from '@/store/usePremiumStore';
 
-const appearanceOptions: ThemePreference[] = ['system', 'light', 'dark'];
+const appearanceOptions: ThemePreference[] = ['light', 'dark'];
 
 export const ProfileScreen = (): React.JSX.Element => {
   const theme = useAppTheme();
@@ -188,7 +188,7 @@ export const ProfileScreen = (): React.JSX.Element => {
           </Text>
           <View style={styles.infoRow}>
             <Text tone="muted">App</Text>
-            <Text weight="semibold">EPA 608 PRO</Text>
+            <Text weight="semibold">EPA 608 Ultimate</Text>
           </View>
           <View style={styles.infoRow}>
             <Text tone="muted">Version</Text>
