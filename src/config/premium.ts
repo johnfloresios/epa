@@ -1,7 +1,7 @@
 export const premiumConfig = {
   entitlementId: 'premium',
   offeringId: 'default',
-  packageIdentifier: '$rc_lifetime',
+  packageIdentifier: 'premium',
   freeCoreQuizQuestionCount: 25,
   sectionExamQuestionCount: 25,
   universalExamQuestionsPerSection: 25,

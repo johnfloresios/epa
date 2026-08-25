@@ -9,10 +9,10 @@ Progress dashboard.
 
 1. Install the native SDK: `npm install react-native-purchases`.
 2. In App Store Connect and Google Play Console, create the same one-time
-   non-consumable product (for example `epa608_premium_lifetime`) and choose the
+   non-consumable product (for example `premium`) and choose the
    price tier you want.
 3. Import both products into RevenueCat, attach them to the `premium`
-   entitlement, and add it as the `$rc_lifetime` package in the `default`
+   entitlement, and add it as a custom `premium` package in the `default`
    offering. Subscription packages are intentionally ignored by the app.
 4. Set `EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY` and
    `EXPO_PUBLIC_REVENUECAT_GOOGLE_API_KEY` in the build environment.
