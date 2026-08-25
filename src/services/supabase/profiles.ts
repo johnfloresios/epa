@@ -48,6 +48,32 @@ export const profileService = {
 
     return null;
   },
+  ensureProfile: async (
+    userId: string,
+    email: string | null,
+    displayName: string,
+  ): Promise<UserProfile> => {
+    assertSupabaseConfigured();
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert(
+        {
+          id: userId,
+          email,
+          display_name: displayName.trim(),
+        },
+        { onConflict: 'id' },
+      )
+      .select(PROFILE_COLUMNS)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return mapProfile(data);
+  },
   updateProfile: async (
     userId: string,
     updates: { displayName: string },

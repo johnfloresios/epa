@@ -36,6 +36,19 @@ const applySession = async (
   if (user) {
     try {
       profile = await profileService.getProfile(user.id);
+
+      const metadataDisplayName =
+        typeof user.user_metadata.display_name === 'string'
+          ? user.user_metadata.display_name.trim()
+          : '';
+
+      if (metadataDisplayName && !profile?.displayName?.trim()) {
+        profile = await profileService.ensureProfile(
+          user.id,
+          user.email ?? null,
+          metadataDisplayName,
+        );
+      }
     } catch {
       profile = null;
     }

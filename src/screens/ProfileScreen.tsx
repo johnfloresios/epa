@@ -22,7 +22,12 @@ export const ProfileScreen = (): React.JSX.Element => {
   const signOut = useAuthStore((state) => state.signOut);
   const themePreference = useAppStore((state) => state.themePreference);
   const setThemePreference = useAppStore((state) => state.setThemePreference);
-  const [displayName, setDisplayName] = useState(profile?.displayName ?? '');
+  const metadataDisplayName =
+    typeof user?.user_metadata.display_name === 'string'
+      ? user.user_metadata.display_name.trim()
+      : '';
+  const savedDisplayName = profile?.displayName?.trim() || metadataDisplayName;
+  const [displayName, setDisplayName] = useState(savedDisplayName);
   const [message, setMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -39,8 +44,8 @@ export const ProfileScreen = (): React.JSX.Element => {
       : null);
 
   useEffect(() => {
-    setDisplayName(profile?.displayName ?? '');
-  }, [profile?.displayName]);
+    setDisplayName(savedDisplayName);
+  }, [savedDisplayName]);
 
   useEffect(() => {
     if (!profile && user) {
